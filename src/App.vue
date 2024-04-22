@@ -1,5 +1,17 @@
-<script setup>
+<script>
   import Item from './components/Item.vue';
+  export default {
+    components: {
+      Item,
+    },
+    methods: {
+      displayPage() {
+        const main = document.querySelector('main');
+        main.classList.remove('hidden');
+        main.classList.add('main-full');
+      }
+    },
+  }
 </script>
 
 <template>
@@ -9,11 +21,8 @@
 
   <div class="wrapper">
       <Item />
-      <router-link to="/solar" class="item" tag="div" style="height: 200px; width: 200px; background-color: grey;">
-  </router-link>
   </div>
-
-  
+  <router-link @click="displayPage" to="/solar" class="item" tag="div" style="height: 200px; width: 200px; background-color: grey;"></router-link>
 
   <main class="hidden">
     <RouterView />

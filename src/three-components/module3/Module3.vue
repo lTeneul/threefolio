@@ -9,20 +9,18 @@
     import FogInfo from './fog/FogInfo.vue';
     import Fog from './fog/Fog.vue';
 
-
-
     export default {
         components: {
-    HideButton,
-    Light,
-    LightInfo,
-    Shadow,
-    ShadowInfo,
-    SpotLight,
-    SpotlightInfo,
-    FogInfo,
-    Fog
-},
+            HideButton,
+            Light,
+            LightInfo,
+            Shadow,
+            ShadowInfo,
+            SpotLight,
+            SpotlightInfo,
+            FogInfo,
+            Fog
+        },
     }
 </script>
 
