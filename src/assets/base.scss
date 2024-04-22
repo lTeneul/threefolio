@@ -1,0 +1,97 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: 0;
+    font-family: 'Roboto';
+}
+
+#app {
+    height: 100vh;
+    background-color: $color-tertiary;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+.hidden {
+    display: none;
+}
+#hide-button {
+    width: 10%;
+    background: none;
+    border: none;
+    align-self: end;
+    font-size: 25px;
+    color: $color-secondary;
+    cursor: pointer;
+}
+main {
+    position: absolute;
+    width: 80%;
+    align-self: center;
+    height: 100%;
+    display: flex;
+    box-shadow: $color-secondary 0px 50px 300px -20px, $color-secondary 0px 30px 60px -30px;
+    &:before {
+        content: '';
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        opacity: 0.5;
+    }
+    .view-wrapper {
+        width: 100%;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        z-index: 5;
+        background-color: $color-tertiary;
+        color: $hilight-color;
+        overflow-y: scroll;
+        box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px -12px inset, rgba(0, 0, 0, 0.1) 0px 18px 120px -18px inset;
+        h3 {
+            color: $color-secondary;
+        }
+        .more-separator {
+            width: 100%;
+            border-top: 2px solid $hilight-color;
+            font-size: 30px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .code-import {
+            color: #FF9800;
+        }
+        .code-com {
+            color: $color-secondary;
+            font-style: italic;
+        }
+        .three-render {
+            min-height: 550px;
+        }
+        .three-information {
+            span.highlight-text {
+                color: $color-secondary;
+                font-weight: bold;
+            }
+            .more-separator {
+                margin-top: 20px;
+            }
+        }
+    }
+}
+
+.three-div {
+    height: 100%;
+    width: 100%;
+}
+
+.dg {
+    margin-top: 30px;
+}
+.dg.main .close-button.close-bottom {
+    position: static!important;
+}

@@ -1,0 +1,20 @@
+header {
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 30px;
+    h1 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: $color-primary;
+        border: 2px solid $color-secondary;
+        height: 100%;
+        width: 30%;
+        color: $color-secondary;
+        box-shadow: $hilight-color 0px 0px 0px 15px;
+        border-radius: 0 0 20px 20px;
+    }
+}
