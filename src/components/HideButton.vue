@@ -11,8 +11,11 @@ export default {
   },
   methods: {
     toggleVisibility() {
-        const test = document.querySelector('main')
-        test.classList.add('hidden')
+        const main = document.querySelector('main')
+        main.classList.add('hidden')
+        if(main.classList.contains('main-full')) {
+          main.classList.remove('main-full')
+        }
     }
   }
 };

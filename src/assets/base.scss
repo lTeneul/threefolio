@@ -83,6 +83,23 @@ main {
         }
     }
 }
+.main-full {
+    width: 100%;
+    .view-wrapper {
+        padding: 0;
+        height: 100%;
+        #hide-button {
+            position: absolute;
+            top: 20px;
+        }
+        .three-render {
+            height: 100%;
+        }
+        canvas {
+            height: 100%;
+        }
+    }
+}
 
 .three-div {
     height: 100%;
