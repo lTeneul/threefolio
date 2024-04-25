@@ -13,11 +13,13 @@ import uranusTexture from '@/img/uranus.jpg';
 import uranusRingTexture from '@/img/uranus ring.png';
 import neptuneTexture from '@/img/neptune.jpg';
 import plutoTexture from '@/img/pluto.jpg';
+import vertexShader from '@/shaders/vertex.glsl';
+import fragmentShader from '@/shaders/fragment.glsl'
 
 export function solarRender(container) {
     // Camera / Scene / Render / Orbit
 	const scene = new THREE.Scene();
-
+    console.log(vertexShader);
 	const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
 	camera.position.set(10, 100, 200);
     camera.rotateX(-0.4)
@@ -58,7 +60,7 @@ export function solarRender(container) {
     // Creation des planètes
     function createPlanete(size, texture, position, name, ring) {
         const geo = new THREE.SphereGeometry(size, 30, 30);
-        const mat = new THREE.MeshStandardMaterial({
+        const mat = new THREE.MeshBasicMaterial({
             map: textureLoader.load(texture),
         });
         const mesh = new THREE.Mesh(geo, mat);
