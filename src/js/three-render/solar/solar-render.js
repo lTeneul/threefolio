@@ -13,8 +13,11 @@ import uranusTexture from '@/img/uranus.jpg';
 import uranusRingTexture from '@/img/uranus ring.png';
 import neptuneTexture from '@/img/neptune.jpg';
 import plutoTexture from '@/img/pluto.jpg';
+
 import vertexShader from '@/shaders/vertex.glsl';
 import fragmentShader from '@/shaders/fragment.glsl'
+import atmosphereVertexShader from '@/shaders/atmosphereVertex.glsl';
+import atmosphereFragmentShader from '@/shaders/atmosphereFragment.glsl'
 
 export function solarRender(container) {
     // Camera / Scene / Render / Orbit
@@ -58,17 +61,44 @@ export function solarRender(container) {
     scene.add(sun);
     
     // Creation des planètes
-    function createPlanete(size, texture, position, name, ring) {
+    function createPlanete(size, texture, position, r, g, b, name, ring) {
+        var couleurRGB = new THREE.Vector3(r, g, b);
         const geo = new THREE.SphereGeometry(size, 30, 30);
         const mat = new THREE.ShaderMaterial({
             vertexShader,
-            fragmentShader
+            fragmentShader,
+            uniforms: {
+                globeTexture: {
+                    value: new THREE.TextureLoader().load(texture)
+                },
+                couleurRGB: {
+                    value: couleurRGB
+                }
+            }
         });
+        const atmosphere = new THREE.Mesh(
+            new THREE.SphereGeometry(size, 30, 30),
+            new THREE.ShaderMaterial({
+                vertexShader: atmosphereVertexShader,
+                fragmentShader: atmosphereFragmentShader,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                side: THREE.BackSide,
+                uniforms: {
+                    couleurRGB: {
+                        value: couleurRGB
+                    }
+                }
+            }));
+        atmosphere.scale.set(1.1, 1.1, 1.1)
+        
         const mesh = new THREE.Mesh(geo, mat);
         mesh.name = name;
         const obj = new THREE.Object3D();
         obj.name = 'planetParent'
+        mesh.add(atmosphere);
         obj.add(mesh);
+        
         if(ring) {
             const ringGeo = new THREE.RingGeometry(
                 ring.innerRadius,
@@ -77,7 +107,8 @@ export function solarRender(container) {
 
             const ringMat = new THREE.MeshBasicMaterial({
                 map: textureLoader.load(ring.texture),
-                side: THREE.DoubleSide
+                side: THREE.DoubleSide,
+                transparent: true,
             });
             const ringMesh = new THREE.Mesh(ringGeo, ringMat);
             obj.add(ringMesh);
@@ -89,25 +120,26 @@ export function solarRender(container) {
         mesh.position.x = position;
         return {mesh, obj}
     };
+    
+    // Liste Planetes
+    const venus = createPlanete(5.8, venusTexture, 44, 0.3, 0.6, 1.0, 'venus');
 
-    const mercury = createPlanete(3.2, mercuryTexture, 28, 'mercury');
-    const venus = createPlanete(5.8, venusTexture, 44, 'venus');
-    const earth = createPlanete(6, earthTexture, 62, 'earth');
-    const mars = createPlanete(4, marsTexture, 78, 'mars');
-    const jupiter = createPlanete(12, jupiterTexture, 100, 'jupiter');
-
-    const saturn = createPlanete(10, saturnTexture, 132, 'saturn', {
+    const mercury = createPlanete(3.2, mercuryTexture, 28, 0.3, 0.6, 1.0, 'mercury');
+    const earth = createPlanete(6, earthTexture, 62, 0.3, 0.6, 1.0, 'earth');
+    const mars = createPlanete(4, marsTexture, 78, 0.839, 0.3137, 0.0627,'mars');
+    const jupiter = createPlanete(12, jupiterTexture, 100, 0.3, 0.6, 1.0,'jupiter');
+    const saturn = createPlanete(10, saturnTexture, 132, 0.3, 0.6, 1.0,'saturn', {
         innerRadius: 10,
         outerRadius: 20,
         texture: saturnRingTexture
     });
-    const uranus = createPlanete(7, uranusTexture, 176, 'uranus',{
+    const uranus = createPlanete(7, uranusTexture, 176, 0.3, 0.6, 1.0,'uranus',{
         innerRadius: 7,
         outerRadius: 12,
         texture: uranusRingTexture
     });
-    const neptune = createPlanete(7, neptuneTexture, 200, 'neptune');
-    const pluto = createPlanete(2.8, plutoTexture, 216, 'pluto');
+    const neptune = createPlanete(7, neptuneTexture, 200, 0.3, 0.6, 1.0,'neptune');
+    const pluto = createPlanete(2.8, plutoTexture, 216, 0.3, 0.6, 1.0,'pluto');
 
     // Sunlight
     const sunlight = new THREE.PointLight(0xFFFFFF, 20000, 8000);
@@ -119,11 +151,10 @@ export function solarRender(container) {
     const raycaster = new THREE.Raycaster();
     let planetStop;
 
-    const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 5);
-    scene.add(directionalLight);
-    directionalLight.position.set(5, 5, 5)
+    
 
-
+    // Evenement de clique sur une planète
+    container.addEventListener('mousedown', onMouseDown);
     function onMouseDown(event) {
         if(!!planetStop) {
             planetStop = null;
@@ -196,9 +227,6 @@ export function solarRender(container) {
             neptune.obj.rotateY(0.0001);
             pluto.obj.rotateY(0.00007);
         }
-        
-        container.addEventListener('mousedown', onMouseDown);
-
 		render()
 	}
 
