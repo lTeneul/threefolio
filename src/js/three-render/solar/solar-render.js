@@ -60,8 +60,9 @@ export function solarRender(container) {
     // Creation des planètes
     function createPlanete(size, texture, position, name, ring) {
         const geo = new THREE.SphereGeometry(size, 30, 30);
-        const mat = new THREE.MeshBasicMaterial({
-            map: textureLoader.load(texture),
+        const mat = new THREE.ShaderMaterial({
+            vertexShader,
+            fragmentShader
         });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.name = name;
