@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import gsap from 'gsap'
 
 import starsTexture from '@/img/backstars.jpg';
 import sunTexture from '@/img/sun.png';
@@ -22,9 +23,14 @@ import atmosphereFragmentShader from '@/shaders/atmosphereFragment.glsl'
 export function solarRender(container) {
     // Camera / Scene / Render / Orbit
 	const scene = new THREE.Scene();
-    console.log(vertexShader);
 	const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
-	camera.position.set(10, 100, 200);
+	camera.position.set(-30, 20, 200);
+    gsap.to(camera.position, {
+        x: 0,
+        y: 100,
+        z: 200,
+        duration: 1.5
+    })
     camera.rotateX(-0.4)
    
 	const renderer = new THREE.WebGLRenderer({
@@ -49,16 +55,28 @@ export function solarRender(container) {
     const ambientLight = new THREE.AmbientLight(0x333333, 1);
     scene.add(ambientLight);
 
-    const textureLoader = new THREE.TextureLoader();
+    const planetTab = [];
 
     // Soleil
     const sunGeo = new THREE.SphereGeometry(16,30,30);
-    const sunMat = new THREE.MeshBasicMaterial({
-        map: textureLoader.load(sunTexture),
+    const sunMat = new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        transparent: true,
+        uniforms: {
+            globeTexture: {
+                value: new THREE.TextureLoader().load(sunTexture)
+            },
+            couleurRGB: {
+                value: new THREE.Vector3(1, 1, 0)
+            }
+        }
     });
     const sun = new THREE.Mesh(sunGeo, sunMat);
     sun.name = 'sun'
+    planetTab.push(sun)
     scene.add(sun);
+
     
     // Creation des planètes
     function createPlanete(size, texture, position, r, g, b, name, ring) {
@@ -67,6 +85,7 @@ export function solarRender(container) {
         const mat = new THREE.ShaderMaterial({
             vertexShader,
             fragmentShader,
+            transparent: true,
             uniforms: {
                 globeTexture: {
                     value: new THREE.TextureLoader().load(texture)
@@ -76,6 +95,43 @@ export function solarRender(container) {
                 }
             }
         });
+        
+        
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.castShadow = true;
+        mesh.name = name;
+        const obj = new THREE.Object3D();
+        obj.name = 'planetParent'
+        obj.add(mesh);
+        
+        if(ring) {
+            const ringGeo = new THREE.RingGeometry(
+                ring.innerRadius,
+                ring.outerRadius,
+                32);
+
+                const ringMat = new THREE.ShaderMaterial({
+                    vertexShader,
+                    fragmentShader,
+                    transparent: true,
+                    uniforms: {
+                        globeTexture: {
+                            value: new THREE.TextureLoader().load(ring.texture)
+                        },
+                    }
+                })
+
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.name = name;
+            planetTab.push(ringMesh);
+            obj.add(ringMesh);
+
+            ringMesh.receiveShadow = true;
+            ringMesh.position.x = position;
+            ringMesh.rotation.x = -0.45 * Math.PI;
+            ringMesh.rotateY(Math.random() * 0.2)
+
+        }
         const atmosphere = new THREE.Mesh(
             new THREE.SphereGeometry(size, 30, 30),
             new THREE.ShaderMaterial({
@@ -91,55 +147,33 @@ export function solarRender(container) {
                 }
             }));
         atmosphere.scale.set(1.1, 1.1, 1.1)
-        
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.name = name;
-        const obj = new THREE.Object3D();
-        obj.name = 'planetParent'
         mesh.add(atmosphere);
-        obj.add(mesh);
-        
-        if(ring) {
-            const ringGeo = new THREE.RingGeometry(
-                ring.innerRadius,
-                ring.outerRadius,
-                32);
-
-            const ringMat = new THREE.MeshBasicMaterial({
-                map: textureLoader.load(ring.texture),
-                side: THREE.DoubleSide,
-                transparent: true,
-            });
-            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-            obj.add(ringMesh);
-            ringMesh.position.x = position;
-            ringMesh.rotation.x = -0.5 * Math.PI;
-
-        }
+        planetTab.push(mesh);
         scene.add(obj);
         mesh.position.x = position;
         return {mesh, obj}
     };
-    
     // Liste Planetes
-    const venus = createPlanete(5.8, venusTexture, 44, 0.3, 0.6, 1.0, 'venus');
+    const venus = createPlanete(5.8, venusTexture, 44, 1, 0.8, 0.4, 'venus');
 
-    const mercury = createPlanete(3.2, mercuryTexture, 28, 0.3, 0.6, 1.0, 'mercury');
+    const mercury = createPlanete(3.2, mercuryTexture, 28, 0.753, 0.753, 0.753, 'mercury');
     const earth = createPlanete(6, earthTexture, 62, 0.3, 0.6, 1.0, 'earth');
     const mars = createPlanete(4, marsTexture, 78, 0.839, 0.3137, 0.0627,'mars');
-    const jupiter = createPlanete(12, jupiterTexture, 100, 0.3, 0.6, 1.0,'jupiter');
-    const saturn = createPlanete(10, saturnTexture, 132, 0.3, 0.6, 1.0,'saturn', {
+    const jupiter = createPlanete(12, jupiterTexture, 100, 0.898, 0.557, 0.149, 'jupiter');
+
+    const saturn = createPlanete(10, saturnTexture, 132, 1, 0.941, 0.545,'saturn', {
         innerRadius: 10,
         outerRadius: 20,
         texture: saturnRingTexture
     });
-    const uranus = createPlanete(7, uranusTexture, 176, 0.3, 0.6, 1.0,'uranus',{
+
+    const uranus = createPlanete(7, uranusTexture, 176, 0.690, 0.878, 0.902, 'uranus',{
         innerRadius: 7,
         outerRadius: 12,
         texture: uranusRingTexture
     });
-    const neptune = createPlanete(7, neptuneTexture, 200, 0.3, 0.6, 1.0,'neptune');
-    const pluto = createPlanete(2.8, plutoTexture, 216, 0.3, 0.6, 1.0,'pluto');
+    const neptune = createPlanete(7, neptuneTexture, 200, 0, 0.2, 0.6,'neptune');
+    const pluto = createPlanete(2.8, plutoTexture, 216, 0.502, 0.400, 0.400,'pluto');
 
     // Sunlight
     const sunlight = new THREE.PointLight(0xFFFFFF, 20000, 8000);
@@ -149,18 +183,47 @@ export function solarRender(container) {
     const {top, left, width, height} = renderer.domElement.getBoundingClientRect();
 
     const raycaster = new THREE.Raycaster();
+    let planetChoosen;
     let planetStop;
 
-    
+    // Evenement curseur pointeur
+    container.addEventListener('mousemove', onMouseMove)
+    function onMouseMove(event) {
+        const coords = new THREE.Vector2(
+            -1 + 2 * (event.clientX - left) / width,
+            1 - 2 * (event.clientY - top) / height,
+        )
+        raycaster.setFromCamera(coords, camera);
+        const intersections = raycaster.intersectObjects(scene.children, true);
+
+        if(intersections.length > 0) {
+            renderer.domElement.style.cursor = 'pointer';
+        } else {
+            renderer.domElement.style.cursor = 'auto';
+        }
+    }
 
     // Evenement de clique sur une planète
     container.addEventListener('mousedown', onMouseDown);
     function onMouseDown(event) {
+        const divInfo =  document.querySelector('.planet-info');
+
         if(!!planetStop) {
+            divInfo.classList.add('hidden');
             planetStop = null;
-            camera.position.set(10, 100, 200);
-            camera.lookAt(0, 0, 0)
+            gsap.to(camera.position, {
+                x: 0,
+                y: 100,
+                z: 200,
+                duration: 1.5,
+            })
+            camera.rotateX(-0.4);
             sunlight.intensity = 20000;
+
+            planetTab.forEach(planet => {
+                planet.visible = true;
+            })
+
             return
         }
 
@@ -173,30 +236,50 @@ export function solarRender(container) {
         const intersections = raycaster.intersectObjects(scene.children, true);
 
         if(intersections.length > 0) {
+            divInfo.classList.remove('hidden');
             const selectedObject = intersections[0].object;
+
             scene.traverse(function(child) {
                 if (child instanceof THREE.Mesh && child.name === selectedObject.name) {
-                    cameraCenter(child);
+                    cameraCenter(child, coords);
                     sunlight.intensity = 0;
+                    planetChoosen = child;
                     planetStop = child.parent;
+                    divInfo.querySelector('input').value = child.name;
+                    divInfo.querySelector('input').dispatchEvent(new Event('inputchange'))
                 }
             });
+
+            planetTab.forEach(planet => {
+                if(planet.name != planetChoosen.name) {
+                    planet.visible = false;
+                }
+            })
         }
-        
     }
 
-    function cameraCenter(object) {
+    function cameraCenter(object, coords) {
         const boiteEnglobante = new THREE.Box3().setFromObject(object);
         const centreBoite = new THREE.Vector3();
         boiteEnglobante.getCenter(centreBoite);
+
         const tailleBoite = new THREE.Vector3();
         boiteEnglobante.getSize(tailleBoite);
+
         const distance = Math.max(tailleBoite.x, tailleBoite.y, tailleBoite.z) / (2 * Math.tan(camera.fov * Math.PI / 360));
-        camera.position.copy(centreBoite);
-        camera.position.z += distance;
-        
+        const planetPos = camera.position.copy(centreBoite);
         camera.lookAt(centreBoite);
-        camera.position.x += tailleBoite.x / 2;
+
+        gsap.fromTo(camera.position, {
+            x: coords.x,
+            y: coords.y,
+            z: 200,
+        },
+        {
+            x: planetPos.x + tailleBoite.x / 2,
+            y: 0,
+            z: planetPos.z + distance,
+        })
     }
 
 	function animate() {
