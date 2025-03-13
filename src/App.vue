@@ -22,7 +22,12 @@
   <div class="wrapper">
       <Item />
   </div>
-  <router-link @click="displayPage" to="/solar" class="item" tag="div" style="height: 200px; width: 200px; background-color: grey;"></router-link>
+
+  <div class="wrapper">
+    <router-link @click="displayPage" to="/solar" class="item" tag="div" style="background-color: #77B0AA;">MilkyWay</router-link>
+    <router-link @click="displayPage" to="/king-hall" class="item" tag="div" style="background-color: #77B0AA;">King Hall</router-link>
+  </div>
+  
 
   <main class="hidden">
     <RouterView />

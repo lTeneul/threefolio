@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import gsap from 'gsap'
+import gsap from 'gsap';
 
 import starsTexture from '@/img/backstars.jpg';
 import sunTexture from '@/img/sun.png';
@@ -172,6 +172,7 @@ export function solarRender(container) {
         outerRadius: 12,
         texture: uranusRingTexture
     });
+
     const neptune = createPlanete(7, neptuneTexture, 200, 0, 0.2, 0.6,'neptune');
     const pluto = createPlanete(2.8, plutoTexture, 216, 0.502, 0.400, 0.400,'pluto');
 
@@ -246,7 +247,7 @@ export function solarRender(container) {
                     planetChoosen = child;
                     planetStop = child.parent;
                     divInfo.querySelector('input').value = child.name;
-                    divInfo.querySelector('input').dispatchEvent(new Event('inputchange'))
+                    divInfo.querySelector('input').dispatchEvent(new Event('inputchange'));
                 }
             });
 
